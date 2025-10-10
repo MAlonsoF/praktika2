@@ -1,5 +1,3 @@
-package labo2;
-
 public class OrderedDoubleLinkedList<T> extends DoubleLinkedList<T> implements OrderedListADT<T> {
 	
 	public void add(T elem){

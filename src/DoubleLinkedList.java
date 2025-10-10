@@ -1,6 +1,6 @@
-package labo2;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class DoubleLinkedList<T> implements ListADT<T> {
 
