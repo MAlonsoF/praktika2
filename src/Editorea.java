@@ -1,15 +1,15 @@
-import java.util.ArrayList;
-import java.util.HashMap;
+package labo2;
+
 
 public class Editorea {
     private String id;
     private String izena;
-    private HashMap<String, Argitalpena> argitalpenak;
+    private UnorderedDoubleLinkedList<Argitalpena> argitalpenak;
 
     public Editorea(String pId, String pIzena){
         this.id = pId;
         this.izena = pIzena;
-        this.argitalpenak = new HashMap<String, Argitalpena>();
+        this.argitalpenak = new UnorderedDoubleLinkedList<>();
     }
 
     public String getIzena() {
@@ -21,20 +21,25 @@ public class Editorea {
     }
 
     public void gehituArgitalpena(Argitalpena a) {
-        if (!argitalpenak.containsKey(a.getIdA())) {
-            argitalpenak.put(a.getIdA(), a);
+        if (findArgitalpena(a.getIdA()) == null) {
+            argitalpenak.addToRear(a);
         }
     }
-    public ArrayList<String> getArgitalpenak() {
-        ArrayList<String> lista = new ArrayList<String>();
-        for (Argitalpena a : argitalpenak.values()) {
-            String id = a.getIdA();
-            String idS = id.toString();
-            lista.add(idS);
+    public UnorderedDoubleLinkedList<String> getArgitalpenak() {
+        UnorderedDoubleLinkedList<String> lista = new UnorderedDoubleLinkedList<>();
+        for (Argitalpena a : argitalpenak) {
+            lista.addToRear(a.getIdA());
         }
         return lista;
     }
-    public Iterable<Argitalpena> getArgitalpenakObjektuak() {
-        return argitalpenak.values();
+    public UnorderedDoubleLinkedList<Argitalpena> getArgitalpenakObjektuak() {
+        return argitalpenak;
+    }
+    
+    private Argitalpena findArgitalpena(String idA) {
+        for (Argitalpena a : argitalpenak) {
+            if (a.getIdA().equals(idA)) return a;
+        }
+        return null;
     }
 }
