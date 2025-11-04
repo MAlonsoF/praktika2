@@ -1,8 +1,7 @@
-package labo2;
 
 import java.util.Iterator;
 
-public interface ListADT<T> extends Iterable<T> {
+public interface ListADT<T> {
 
 
 public void setDeskr(String izena); // Listaren izena eguneratzen du
