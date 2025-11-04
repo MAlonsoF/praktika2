@@ -1,3 +1,5 @@
+package labo2;
+
 public interface UnorderedListADT<T> extends ListADT<T> {
 	
 	public void addToFront(T elem);

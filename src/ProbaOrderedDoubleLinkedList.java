@@ -1,4 +1,6 @@
-public class ProbaOrderedDoubleLinkedList {
+package labo2;
+
+public class ProbaOrderedDoubleLinkedList {	
 		
 		public static void main(String[] args)  {
 			

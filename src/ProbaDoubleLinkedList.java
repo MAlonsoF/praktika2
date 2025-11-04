@@ -1,3 +1,5 @@
+package labo2;
+
 import java.util.Iterator;
 
 
