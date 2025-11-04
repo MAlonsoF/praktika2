@@ -1,53 +1,72 @@
-import java.io.*;
+package labo2;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class Fitxategia {
 
-    public Fitxategia() {
+    public Fitxategia() {}
 
-    }
-    public void irakurriEditoreak(String pFitxeroa) throws FileNotFoundException, IOException {
+    // === Carga de Editoreak ===
+    public void irakurriEditoreak(String pFitxeroa) throws IOException {
         try (Scanner entrada = new Scanner(new FileReader(pFitxeroa))) {
-            while (entrada.hasNext()) {
+            while (entrada.hasNextLine()) {
                 String linea = entrada.nextLine();
+                if (linea.isBlank() || linea.startsWith("#")) continue;
+
                 String[] datuak = linea.split("\\s+#\\s+");
-                String id = datuak[0].trim();      // Ej: Q36423409
+                if (datuak.length < 2) continue;
+
+                String id = datuak[0].trim();
                 String izena = datuak[1].trim();
 
-                Editorea e = new Editorea(id, izena);
-                EditoreaBiltegi.getNireEditoreaBiltegi().gehituEditorea(id, e);
+                Editorea existente = EditoreaBiltegi.getNireEditoreaBiltegi().bilatuEditorea(id);
+                if (existente == null) {
+                    Editorea e = new Editorea(id, izena);
+                    EditoreaBiltegi.getNireEditoreaBiltegi().gehituEditorea(e);
+                }
             }
         }
     }
 
+    // === Carga de Argitalpenak ===
+    public void irakurriArgitalpenak(String fitxategia) {
+        try (BufferedReader br = new BufferedReader(new FileReader(fitxategia))) {
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                if (linea.isBlank() || linea.startsWith("#")) continue;
 
-    // 2. ARGITALPENAK
-    public void irakurriArgitalpenak(String pFitxeroa) throws FileNotFoundException, IOException {
-        try (Scanner entrada = new Scanner(new FileReader(pFitxeroa))) {
-            while (entrada.hasNext()) {
-                String linea = entrada.nextLine();
-                String[] datuak = linea.split("\\s+#\\s+");
-                String id = datuak[0].trim();          // Ej: Q33205611
-                String izenburua = datuak[1].trim();
+                String[] zatia = linea.split("\\s+#\\s+");
+                if (zatia.length < 2) continue;
+
+                String id = zatia[0].trim();
+                String izenburua = zatia[1].trim();
 
                 Argitalpena a = new Argitalpena(id, izenburua);
                 ArgitalpenaBiltegi.getNireArgitalpenaBiltegi().gehituArgitalpena(id, a);
             }
-        } catch (IzenaEzberdinaException e) {
-            throw new RuntimeException(e);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    // 3. RELACIÓN ARGITALPENA ↔ EDITOREA
-    public void irakurriArgitalpenaEditoreak(String pFitxeroa) throws FileNotFoundException, IOException {
+    // === Carga de relación Argitalpena-Editorea ===
+    public void irakurriArgitalpenaEditoreak(String pFitxeroa) throws IOException {
         try (Scanner entrada = new Scanner(new FileReader(pFitxeroa))) {
-            String linea;
-            while (entrada.hasNext()) {
-                linea = entrada.nextLine();
+            while (entrada.hasNextLine()) {
+                String linea = entrada.nextLine();
+                if (linea.isBlank() || linea.startsWith("#")) continue;
+
                 String[] datuak = linea.split("\\s+#\\s+");
+                if (datuak.length < 2) continue;
+
                 String idArgitalpena = datuak[0].trim();
                 String idEditorea = datuak[1].trim();
 
+                // Buscamos solo una vez
                 Argitalpena a = ArgitalpenaBiltegi.getNireArgitalpenaBiltegi().bilatuArgitalpena(idArgitalpena);
                 Editorea e = EditoreaBiltegi.getNireEditoreaBiltegi().bilatuEditorea(idEditorea);
 
@@ -58,39 +77,49 @@ public class Fitxategia {
             }
         }
     }
-    public void irakurriArgitalpenaAgintapeak(String pFitxeroa) throws FileNotFoundException, IOException {
+
+    // === Carga de relaciones entre Argitalpenak (aipamenak) ===
+    public void irakurriArgitalpenaAgintapeak(String pFitxeroa) throws IOException {
         try (Scanner entrada = new Scanner(new FileReader(pFitxeroa))) {
-            String linea;
-            while (entrada.hasNext()) {
-                linea = entrada.nextLine();
+            while (entrada.hasNextLine()) {
+                String linea = entrada.nextLine();
+                if (linea.isBlank() || linea.startsWith("#")) continue;
+
                 String[] datuak = linea.split("\\s+#\\s+");
-                String idArgitalpena = datuak[0].trim();
-                String idArgitalpena2 = datuak[1].trim();
+                if (datuak.length < 2) continue;
 
-                Argitalpena a = ArgitalpenaBiltegi.getNireArgitalpenaBiltegi().bilatuArgitalpena(idArgitalpena);
-                Argitalpena ag = ArgitalpenaBiltegi.getNireArgitalpenaBiltegi().bilatuArgitalpena(idArgitalpena2);
+                String idArg1 = datuak[0].trim();
+                String idArg2 = datuak[1].trim();
 
-                if (a != null && ag != null) {
-                    a.gehituArgitalpena(ag);
-                    ag.gehituArgitalpena(a);
+                // Buscamos solo una vez
+                Argitalpena a1 = ArgitalpenaBiltegi.getNireArgitalpenaBiltegi().bilatuArgitalpena(idArg1);
+                Argitalpena a2 = ArgitalpenaBiltegi.getNireArgitalpenaBiltegi().bilatuArgitalpena(idArg2);
+
+                if (a1 != null && a2 != null) {
+                    a1.gehituArgitalpena(a2);
+                    a2.gehituArgitalpena(a1);
                 }
             }
         }
     }
+
+    // === Guardar Editoreak ===
     public void gordeEditoreak(String fitxeroa) throws IOException {
         try (PrintWriter pw = new PrintWriter(new FileWriter(fitxeroa))) {
-            for (Editorea e : EditoreaBiltegi.getNireEditoreaBiltegi().getEditoreak()) {
+            UnorderedDoubleLinkedList<Editorea> lista = EditoreaBiltegi.getNireEditoreaBiltegi().getEditoreak();
+            for (Editorea e : lista) {
                 pw.println(e.getId() + " # " + e.getIzena());
             }
         }
     }
 
+    // === Guardar Argitalpenak ===
     public void gordeArgitalpenak(String fitxeroa) throws IOException {
         try (PrintWriter pw = new PrintWriter(new FileWriter(fitxeroa))) {
-            for (Argitalpena a : ArgitalpenaBiltegi.getNireArgitalpenaBiltegi().getArgitalpenak()) {
+            UnorderedDoubleLinkedList<Argitalpena> lista = ArgitalpenaBiltegi.getNireArgitalpenaBiltegi().getArgitalpenak();
+            for (Argitalpena a : lista) {
                 pw.println(a.getIdA() + " # " + a.getIzenburua());
             }
         }
     }
-    
 }
