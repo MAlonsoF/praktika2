@@ -1,13 +1,15 @@
-import java.util.ArrayList;
+package labo2;
 import java.util.HashMap;
-import java.util.NoSuchElementException;
+import java.util.Iterator;
 
 public class EditoreaBiltegi {
     private static EditoreaBiltegi nireEditoreaBiltegi = null;
-    private HashMap<String, Editorea> map;
+    private UnorderedDoubleLinkedList<Editorea> lista;
+    private HashMap<String, Editorea> indexById;
 
     private EditoreaBiltegi() {
-        this.map = new HashMap<>();
+        this.lista = new UnorderedDoubleLinkedList<>();
+        this.indexById = new HashMap<>();
     }
 
     public static EditoreaBiltegi getNireEditoreaBiltegi() {
@@ -16,74 +18,45 @@ public class EditoreaBiltegi {
     }
 
     public int editoreKopurua() {
-        return this.map.size();
+        return lista.size();
     }
 
     public void erreseteatu() {
-        this.map.clear();
+        this.lista = new UnorderedDoubleLinkedList<>();
+        this.indexById.clear();
     }
 
-    // Añadir por ID (preferible)
     public void gehituEditorea(Editorea e) {
-        if (e != null) {
-            map.put(e.getId(), e);
+        if (e != null && !indexById.containsKey(e.getId())) {
+            lista.addToRear(e);
+            indexById.put(e.getId(), e);
         }
     }
 
-    // Sobrecarga por compatibilidad
-    public void gehituEditorea(String id, Editorea e) {
-        if (id != null && e != null) {
-            map.put(id, e);
-        }
-    }
-
-    // Buscar por ID
     public Editorea bilatuEditorea(String id) {
-        if(!(map.containsKey(id))){
-            throw new NoSuchElementException("Id-a ez dago Biltegian");
-        }
-        else return map.get(id);
+        return indexById.get(id);
     }
 
-    public Iterable<Editorea> getEditoreak() {
-        return this.map.values();
-    }
-
-    // devuelve los ids (útil para depurar)
-    public ArrayList<String> getEditoreIds() {
-        return new ArrayList<>(map.keySet());
-    }
-
-    // Ordenación propia (burbuja)
-    public ArrayList<String> egileakOrdenatuta(){
-        ArrayList<String> lista = new ArrayList<>();
-        for (Editorea e : map.values()){
-            lista.add(e.getIzena());
-        }
-        for (int i = 0; i < lista.size()-1; i++){
-            for (int j = 0; j < lista.size()-i-1; j++){
-                if (lista.get(j).compareToIgnoreCase(lista.get(j+1)) > 0){
-                    String tmp = lista.get(j);
-                    lista.set(j, lista.get(j+1));
-                    lista.set(j+1, tmp);
-                }
+    public void ezabatuEditorea(String id) {
+        Editorea e = indexById.remove(id);
+        if (e != null) {
+            lista.remove(e);
+            for (Argitalpena a : e.getArgitalpenakObjektuak()) {
+                a.kenduEgilea(id);
             }
         }
+    }
+
+    public UnorderedDoubleLinkedList<Editorea> getEditoreak() {
         return lista;
     }
 
-    // Eliminar editor por id y limpiar sus referencias en publicaciones
-    public void ezabatuEditorea(String id) {
-        if(!map.containsKey(id)) {
-            throw new NoSuchElementException("Ez dago id hori daukan argitalpenik");
+    public UnorderedDoubleLinkedList<String> getEditoreIds() {
+        UnorderedDoubleLinkedList<String> ids = new UnorderedDoubleLinkedList<>();
+        Iterator<Editorea> it = lista.iterator();
+        while (it.hasNext()) {
+            ids.addToRear(it.next().getId());
         }
-        else {
-            Editorea e = map.remove(id);
-            if (e != null) {
-                for (Argitalpena a : e.getArgitalpenakObjektuak()) {
-                    a.kenduEgilea(id);   // Argitalpena.kenduEgilea debe eliminar la clave id
-                }
-            }
-        }
+        return ids;
     }
 }
