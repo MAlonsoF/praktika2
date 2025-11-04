@@ -1,3 +1,5 @@
+package labo2;
+
 public class Pertsona implements Comparable<Pertsona> {
 	
 	// atributuak
