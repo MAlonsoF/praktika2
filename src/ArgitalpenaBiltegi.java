@@ -1,14 +1,16 @@
-import java.util.ArrayList;
+package labo2;
+import java.util.Iterator;
 import java.util.HashMap;
-import java.util.NoSuchElementException;
 
 
 public class ArgitalpenaBiltegi {
     private static ArgitalpenaBiltegi nireArgitalpenaBiltegi = null;
-    private HashMap<String, Argitalpena> map;
+    private UnorderedDoubleLinkedList<Argitalpena> lista; 
+    private HashMap<String, Argitalpena> indexById;
 
     private ArgitalpenaBiltegi() {
-        this.map = new HashMap<String, Argitalpena>();
+        this.lista = new UnorderedDoubleLinkedList<>();
+        this.indexById = new HashMap<>();
     }
 
     public static ArgitalpenaBiltegi getNireArgitalpenaBiltegi() {
@@ -17,56 +19,54 @@ public class ArgitalpenaBiltegi {
     }
 
     public int argitalpenKopurua() {
-        return this.map.size();
+        return lista.size();
     }
 
     public void erreseteatu() {
-        this.map.clear();
+        lista = new UnorderedDoubleLinkedList<>();
+        indexById.clear();
     }
 
-    public void gehituArgitalpena(String izen, Argitalpena a) throws IzenaEzberdinaException {
-        if (!map.containsKey(izen)) {
-            if (!(izen.equals(a.getIdA()))) {
-                throw new IzenaEzberdinaException("Sartutako id-a ez da Argitalpenarena");
-            } else map.put(izen, a);
+    public void gehituArgitalpena(String id, Argitalpena a) {
+        if (!indexById.containsKey(id)) {
+            lista.addToRear(a);
+            indexById.put(id, a);
         }
     }
 
-    public Argitalpena bilatuArgitalpena(String izen) {
-        return map.get(izen);
+    public Argitalpena bilatuArgitalpena(String id) {
+        return indexById.get(id);
     }
 
     public void ezabatuArgitalpena(String id) {
-        if (!map.containsKey(id)) {
-            throw new NoSuchElementException("Ez dago id hori daukan argitalpenik");
-        } else map.remove(id);
-    }
-
-    public ArrayList<String> argitalpenakOrdenatuta() {
-        if (map.isEmpty()) {
-            throw new NullPointerException("Ez dago argitalpenik biltegian");
-        } else {
-            ArrayList<String> lista = new ArrayList<>();
-            for (Argitalpena a : map.values()) {
-                lista.add(a.getIzenburua());
-            }
-
-            // Algoritmo de ordenación propio (ej: burbuja)
-            for (int i = 0; i < lista.size() - 1; i++) {
-                for (int j = 0; j < lista.size() - i - 1; j++) {
-                    if (lista.get(j).compareToIgnoreCase(lista.get(j + 1)) > 0) {
-                        // intercambiar
-                        String tmp = lista.get(j);
-                        lista.set(j, lista.get(j + 1));
-                        lista.set(j + 1, tmp);
-                    }
-                }
-            }
-            return lista;
+        Argitalpena a = indexById.remove(id);
+        if (a != null) {
+            lista.remove(a);
         }
     }
-    public Iterable<Argitalpena> getArgitalpenak () {
-        return map.values();
-        }
 
+    public OrderedDoubleLinkedList<String> argitalpenakOrdenatutaLimit(int limit) {
+        OrderedDoubleLinkedList<String> listaOrdenada = new OrderedDoubleLinkedList<>();
+        Iterator<Argitalpena> it = lista.iterator();
+        while (it.hasNext() && limit > 0) {
+            Argitalpena a = it.next();
+            listaOrdenada.add(a.getIzenburua());
+            limit--;
+        }
+        return listaOrdenada;
+    }
+
+    public UnorderedDoubleLinkedList<Argitalpena> getArgitalpenak() {
+        return lista;
+    }
+	
+	public OrderedDoubleLinkedList<String> argitalpenakOrdenatuta() {
+	    OrderedDoubleLinkedList<String> listaOrdenada = new OrderedDoubleLinkedList<>();
+	    for (Argitalpena a : lista) {
+	        listaOrdenada.add(a.getIzenburua()); 
+	    }
+	    return listaOrdenada;
+	}
+
+    
 }
