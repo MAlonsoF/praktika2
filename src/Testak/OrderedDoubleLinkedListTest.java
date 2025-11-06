@@ -1,6 +1,9 @@
-package labo2;
+package Testak;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import labo2.Node;
+import labo2.OrderedDoubleLinkedList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

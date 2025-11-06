@@ -1,3 +1,8 @@
+package Testak;
+
+import labo2.OrderedDoubleLinkedList;
+import labo2.Pertsona;
+
 public class ProbaOrderedDoubleLinkedList {
 		
 		public static void main(String[] args)  {
