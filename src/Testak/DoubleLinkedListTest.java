@@ -9,6 +9,7 @@ public class DoubleLinkedListTest {
 
     private DoubleLinkedList<String> lista;
     private DoubleLinkedList<String> lista2;
+    private DoubleLinkedList<String> lista3;
 
     @BeforeEach
     public void setUp() {
@@ -17,6 +18,9 @@ public class DoubleLinkedListTest {
         aux.addToRear("A");
         aux.addToRear("B");
         DoubleLinkedList<String> lista2 = aux.clone(); // lista2 prellenada con "A", "B"
+        UnorderedDoubleLinkedList<String> aux2 = new UnorderedDoubleLinkedList<>();
+        aux.addToRear("A");
+        DoubleLinkedList<String> lista3 = aux2.clone(); // lista3 prellenada con "A"
     }
 
     @Test
@@ -78,12 +82,29 @@ public class DoubleLinkedListTest {
         assertEquals(2, kopia.size());
         assertEquals("A", kopia.first());
         assertEquals("B", kopia.last());
+        DoubleLinkedList<String> kopia2 = lista3.clone();
+        assertEquals(1, kopia2.size());
+        assertEquals("A", kopia2.first());
+        assertEquals("A", kopia2.last());
     }
 
     @Test
     public void testFirstAndLastZerrendaEzHutsan() {
         assertEquals("A", lista2.first());
         assertEquals("B", lista2.last());
+    }
+
+    @Test
+    public void testSizeZerrendaEzHutsan() {
+        assertEquals(2, lista2.size());
+        assertEquals(1, lista3.size());
+        assertEquals(0, lista.size());
+    }
+
+    @Test
+    public void testIsEmptyZerrendaEzHutsan() {
+        assertFalse(lista2.isEmpty());
+        assertTrue(lista.isEmpty());
     }
 
     @Test
@@ -95,7 +116,8 @@ public class DoubleLinkedListTest {
 
     @Test
     public void testFindZerrendaEzHutsan() {
-        assertEquals("B", lista2.find("B"));
+        assertEquals("A", lista2.find("A"));
+        assertNull(lista2.find("D"));
     }
 
     @Test
@@ -104,6 +126,9 @@ public class DoubleLinkedListTest {
         assertEquals(1, lista2.size());
         assertFalse(lista2.contains("A"));
         assertTrue(lista2.contains("B"));
+        lista3.removeAll("A");
+        assertEquals(0, lista3.size());
+
     }
 
     @Test
@@ -112,6 +137,9 @@ public class DoubleLinkedListTest {
         assertEquals("B", eliminado);
         assertEquals(1, lista2.size());
         assertEquals("A", lista2.last());
+        String eliminado2 = lista3.removeLast();
+        assertEquals("A", eliminado);
+        assertEquals(1, lista3.size());
     }
 
     @Test
@@ -120,5 +148,8 @@ public class DoubleLinkedListTest {
         assertEquals("A", eliminado);
         assertEquals(1, lista2.size());
         assertEquals("B", lista2.first());
+        String eliminado2 = lista3.removeFirst();
+        assertEquals("A", eliminado);
+        assertEquals(1, lista3.size());
     }
 }
